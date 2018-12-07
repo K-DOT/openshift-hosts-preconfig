@@ -1,7 +1,7 @@
 openshift-hosts-preconfig
 =========
 
-Configures hosts for sussessful openshift/okd installation
+Configures hosts for successful openshift/okd installation
 
 Role Variables
 --------------
