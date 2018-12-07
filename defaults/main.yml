@@ -1,9 +1,7 @@
 ---
 # defaults file for ansible-openshift-config
 #
-domain_name: 'itandwisdom.com' # Domain to use
 openshift_version: '3.11' # Origin/OKD version. X.XX format
-default_interface: 'eth1' # Default network interface to configure with NM
 docker_version: '1.13.1-75' # X.XX.X-XX format
 docker_storage_device: '/dev/vdb'
 docker_storage_thin_pool_autoextend_threshold: 80
