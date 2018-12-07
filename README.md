@@ -1,31 +1,32 @@
-Role Name
+openshift-hosts-preconfig
 =========
 
-A brief description of the role goes here.
-
-Requirements
-------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Configures hosts for sussessful openshift/okd installation
 
 Role Variables
 --------------
-
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
-
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+ * Origin/OKD version in X.XX format  
+ `openshift_version: '3.11'`  
+ * Docker version in X.XX.X-XX format  
+ `docker_version: '1.13.1-75'`  
+ * Docker storage device  
+ `docker_storage_device: '/dev/vdb'`  
+ * Adds 20% more capacity when the disk usage reaches 80%  
+ `docker_storage_thin_pool_autoextend_threshold: 80`  
+ `docker_storage_thin_pool_autoextend_percent: 20`  
 
 Example Playbook
 ----------------
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+    ---
+    - hosts: all
+      tasks:
+        - name: test
+          include_role:
+            name: ansible-openshift-config
+
 
 License
 -------
@@ -35,4 +36,4 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+@K-DOT
