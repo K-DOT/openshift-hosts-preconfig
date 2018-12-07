@@ -1,0 +1,6 @@
+---
+- hosts: all
+  tasks:
+    - name: test
+      include_role:
+        name: ansible-openshift-config

@@ -1,0 +1,49 @@
+---
+- name: Stop docker
+  systemd:
+    state: stopped
+    name: docker
+- name: Install required packages
+  package:
+    name: '{{ packages }}'
+  vars:
+    packages:
+      - 'device-mapper-persistent-data'
+      - 'lvm2'
+- name: Create volume group
+  lvg:
+    vg: docker
+    pvs: '{{ docker_storage_device }}'
+- name: Create thinpool logical volume
+  lvol:
+    vg: docker
+    lv: '{{ item.lv_name }}'
+    size: '{{ item.lv_size }}'
+    opts: '--wipesignatures y'
+  loop:
+    - lv_name: thinpool
+      lv_size: 95%VG
+    - lv_name: thinpoolmeta
+      lv_size: 1%VG
+- name: Convert the volumes to a thin pool and a storage location for metadata for the thin pool
+  shell:
+    cmd: >
+     lvconvert -y --zero n -c 512K
+     --thinpool docker/thinpool --poolmetadata
+     docker/thinpoolmeta
+  ignore_errors: yes
+  failed_when: false
+- name: Configure autoextension of thin pool
+  template:
+    src: 'templates/docker-thinpool.profile.j2'
+    dest: /etc/lvm/profile/docker-thinpool.profile
+- name: Apply the LVM profile
+  shell:
+    cmd: lvchange --metadataprofile docker-thinpool docker/thinpool
+- name: Enable monitoring for logical volumes
+  shell:
+    cmd: lvs -o+seg_monitor
+- name: Configure devicemapper storage driver
+  template:
+    src: templates/daemon.json.j2
+    dest: /etc/docker/daemon.json

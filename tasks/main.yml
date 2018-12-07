@@ -1,0 +1,99 @@
+---
+# tasks file for ansible-openshift-config
+- name: Check inventory
+  fail:
+    msg: 'masters group not exist'
+  when:
+    - "'masters' not in groups"
+    - "'nodes' not in groups"
+    - "'etcd' not in groups"
+- name: Check routes
+  shell:
+    cmd: 'ip r | grep default | wc -l'
+  register: routes_count
+- name: Print warning
+  debug:
+    msg: 'WARNING: You have more than one default route on host {{ inventory_hostname }}. It can cause problems with DNSMASQ'
+  when: routes_count.stdout | int > 1
+- name: Set hostnames
+  hostname:
+    name: '{{ item }}'
+  delegate_to: '{{ item }}'
+  loop: '{{ groups.all }}'
+- name: Install required/useful packages
+  package:
+    name: '{{ packages }}'
+    state: present
+  vars:
+    packages:
+      - 'wget'
+      - 'git'
+      - 'net-tools'
+      - 'bind-utils'
+      - 'yum-utils'
+      - 'iptables-services'
+      - 'bridge-utils'
+      - 'bash-completion'
+      - 'kexec-tools'
+      - 'sos'
+      - 'psacct'
+      - 'epel-release'
+      - 'git'
+      - 'pyOpenSSL'
+      - 'NetworkManager'
+  loop_control:
+    loop_var: package
+- name: Install stable version of docker
+  yum:
+    name: '{{ packages }}'
+    state: present
+    allow_downgrade: true
+  vars:
+    packages:
+      - 'docker-1.13.1-75.git8633870.el7.centos.x86_64'
+      - 'docker-client-1.13.1-75.git8633870.el7.centos.x86_64'
+      - 'docker-common-1.13.1-75.git8633870.el7.centos.x86_64'
+- name: Configure Interfaces
+  lineinfile:
+    path: '/etc/sysconfig/network-scripts/ifcfg-{{ default_interface }}'
+    regexp: '{{ item.name }}'
+    line:  '{{ item.value }}'
+    state: present
+  loop:
+    - name: '^NM_CONTROLLED='
+      value: 'NM_CONTROLLED="yes"'
+    - name:  '^PEERDNS='
+      value: 'PEERDNS="yes"'
+- name: Start NetworkManager
+  systemd:
+    state: started
+    enabled: yes
+    name: NetworkManager
+- name: Restart Network
+  systemd:
+    state: restarted
+    name: network
+- name: Wait for network to restart
+  pause:
+    seconds: 5
+- import_tasks: docker-storage.yml
+- name: Remove old configuration
+  file:
+    path: '/etc/sysconfig/{{ item }}'
+    state: absent
+  loop:
+    - 'docker-storage-setup'
+    - 'docker-storage'
+- name: Start docker
+  systemd:
+    state: started
+    name: docker
+    enabled: yes
+- name: Add origin repo
+  yum_repository:
+    name: 'Openshift-origin-{{ openshift_version }}'
+    description: 'Openshift origin {{ openshift_version }}'
+    enabled: yes
+    gpgcheck: no
+    baseurl: |
+      "http://mirror.centos.org/centos/7/paas/x86_64/openshift-origin{{ openshift_version | regex_replace('\.','') }}"
