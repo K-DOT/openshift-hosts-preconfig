@@ -12,11 +12,11 @@ openshift_master_api_port=8443
 openshift_master_console_port=8443
 
 [masters]
-openshift-master.example.com openshift_schedulable=true
+openshift-master.example.com openshift_schedulable=true  openshift_hosts_preconfig_if=ens3
 
 [nodes]
-openshift-master.example.com openshift_schedulable=true openshift_node_group_name="node-config-master-infra"
-openshift-node.example.com openshift_node_group_name="node-config-compute"
+openshift-master.example.com openshift_schedulable=true openshift_node_group_name="node-config-master-infra" openshift_hosts_preconfig_if=ens3
+openshift-node.example.com openshift_node_group_name="node-config-compute" openshift_hosts_preconfig_if=ens3
 
 [etcd]
-openshift-master.example.com
+openshift-master.example.com openshift_hosts_preconfig_if=ens3
