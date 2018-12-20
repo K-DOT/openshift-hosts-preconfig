@@ -3,4 +3,4 @@
   tasks:
     - name: test
       include_role:
-        name: ansible-openshift-config
+        name: ../openshift-hosts-preconfig

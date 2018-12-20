@@ -16,8 +16,8 @@
     msg: 'WARNING: You have more than one default route on host {{ inventory_hostname }}. It can cause problems with DNSMASQ'
   when: routes_count.stdout | int > 1
 - name: Set hostnames
-  hostname:
-    name: '{{ item }}'
+  shell:
+    cmd: 'hostnamectl set-hostname {{ item }}'
   delegate_to: '{{ item }}'
   loop: '{{ groups.all }}'
 - name: Install required/useful packages
@@ -61,9 +61,9 @@
     state: present
   loop:
     - name: '^NM_CONTROLLED='
-      value: 'NM_CONTROLLED="yes"'
+      value: 'NM_CONTROLLED=yes'
     - name:  '^PEERDNS='
-      value: 'PEERDNS="yes"'
+      value: 'PEERDNS=yes'
 - name: Start NetworkManager
   systemd:
     state: started

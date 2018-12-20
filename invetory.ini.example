@@ -5,18 +5,21 @@ etcd
 
 [OSEv3:vars]
 ansible_ssh_user=root
+ansible_become=false
 openshift_disable_check=disk_availability,docker_storage,memory_availability,docker_image_availability
 openshift_deployment_type=origin
-openshift_master_default_subdomain=apps.example.com
+openshift_master_default_subdomain=apps.itandwisdom.com
 openshift_master_api_port=8443
 openshift_master_console_port=8443
 
 [masters]
-openshift-master.example.com openshift_schedulable=true  openshift_hosts_preconfig_if=ens3
+openshift-master.example.com openshift_public_hostname=openshift-master.itandwisdom.com openshift_schedulable=true  openshift_hosts_preconfig_if=eth0
 
 [nodes]
-openshift-master.example.com openshift_schedulable=true openshift_node_group_name="node-config-master-infra" openshift_hosts_preconfig_if=ens3
-openshift-node.example.com openshift_node_group_name="node-config-compute" openshift_hosts_preconfig_if=ens3
+openshift-master.example.com openshift_schedulable=true openshift_node_group_name="node-config-master-infra" openshift_hosts_preconfig_if=ens3 openshift_public_hostname=openshift-master.itandwisdom.com
+openshift-node1.example.com openshift_node_group_name="node-config-compute" openshift_public_hostname=openshift-node1.itandwisdom.com
+openshift-node2.example.com openshift_node_group_name="node-config-compute" openshift_public_hostname=openshift-node2.itandwisdom.com
+
 
 [etcd]
-openshift-master.example.com openshift_hosts_preconfig_if=ens3
+openshift-master.example.com openshift_hosts_preconfig_if=eth0 openshift_public_hostname=openshift-master.itandwisdom.com
